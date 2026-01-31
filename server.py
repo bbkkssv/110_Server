@@ -112,6 +112,82 @@ def create_product():
     }), 201 # Created
 
 
+# This was the example from class that used enumerate to get the index, I used .remove 
+# below that is more concise.
+# DELETE /api/products/<int:product_id>
+# @app.route("/api/products/<int:product_id>", methods=["DELETE"])
+# def delete_product(product_id):
+#     for index, product in enumerate(products):
+#         if product["_id"] == product_id:
+#             products.pop(index)
+#             return jsonify({
+#                 "success": True,
+#                 "message": "Product deleted successfully"
+#             }), 200 # OK
+#     
+#     return jsonify({
+#         "success": False,
+#         "message": "Product Not found"
+#     }), 404
+
+# DELETE /api/products/<int:product_id>
+@app.route("/api/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    for product in products:
+        if product["_id"] == product_id:
+            products.remove(product)
+            return jsonify({
+                "success": True,
+                "message": "Product deleted successfully"
+            }), 200 # OK
+    
+    return jsonify({
+        "success": False,
+        "message": "Product Not found"
+    }), 404
+
+# PUT /api/products/<int:product_id>
+# @app.route("/api/products/<int:product_id>", methods=["PUT"])
+# def update_product(product_id):
+#     data = request.get_json()
+#     for product in products:
+#         if product["_id"] == product_id:
+#             product["title"] = data["title"]
+#             product["price"] = data["price"]
+#             product["category"] = data["category"]
+#             product["image"] = data["image"]
+#             
+#             return jsonify({
+#                 "success": True,
+#                 "message": "Product updated successfully",
+#                 "data": product
+#             }), 200 # OK
+#     
+#     return jsonify({
+#         "success": False,
+#         "message": "Product not found"
+#     }), 404 # Not found
+
+
+# Implemented a little differently here
+# PUT /api/products/<int:product_id>
+@app.route("/api/products/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    updated_product = request.get_json()
+    for index, product in enumerate(products):
+        if product["_id"] == product_id:
+            products[index] = updated_product
+            return jsonify({
+                "success": True,
+                "message": "Product updated successfully",
+                "data": updated_product
+            }), 200 # OK
+    
+    return jsonify({
+        "success": False,
+        "message": "Product not found"
+    }), 404
+
 # --------------------------------Coupon database-------------------------
 coupons = [
     {"_id": 1, "code": "WELCOME10", "discount": 10},
@@ -150,6 +226,41 @@ def get_coupon_by_id(id):
                 "success": True,
                 "message": "Coupon retrieved successfully",
                 "data": coupon
+            }), 200 # OK
+    
+    return jsonify({
+        "success": False,
+        "message": "Coupon not found"
+    }), 404 # Not Found
+
+# PUT /api/coupons/<int:id> - editing an existing coupon by its id
+@app.route("/api/coupons/<int:id>", methods=["PUT"])
+def update_coupon(id):
+    updated_data = request.get_json()
+    for coupon in coupons:
+        if coupon["_id"] == id:
+            coupon["code"] = updated_data.get("code", coupon["code"])
+            coupon["discount"] = updated_data.get("discount", coupon["discount"])
+            return jsonify({
+                "success": True,
+                "message": "Coupon updated successfully",
+                "data": coupon
+            }), 200 # OK
+    
+    return jsonify({
+        "success": False,
+        "message": "Coupon not found"
+    }), 404 # Not Found
+
+# DELETE /api/coupons/<int:id> - Allows deleting an existing coupon by its id
+@app.route("/api/coupons/<int:id>", methods=["DELETE"])
+def delete_coupon(id):
+    for coupon in coupons:
+        if coupon["_id"] == id:
+            coupons.remove(coupon)
+            return jsonify({
+                "success": True,
+                "message": "Coupon deleted successfully"
             }), 200 # OK
     
     return jsonify({
